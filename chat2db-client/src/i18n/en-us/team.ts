@@ -10,6 +10,7 @@ export default {
     'team.action.addDatasource.placeholder': 'Search DataSource',
     'team.action.editUser': 'Edit user',
     'team.action.addUser': 'Add User',
+    'team.action.addLdapUser': 'Add Ldap User',
     'team.action.addUser.placeholder': 'Search User',
     'team.action.editTeam': 'Edit Team',
     'team.action.addTeam': 'Add Team',

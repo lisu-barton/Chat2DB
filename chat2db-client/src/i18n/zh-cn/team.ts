@@ -9,6 +9,7 @@ export default {
   'team.action.addDatasource.placeholder': '搜索链接',
   'team.action.editUser': '编辑用户',
   'team.action.addUser': '添加用户',
+  'team.action.addLdapUser': '添加Ldap用户',
   'team.action.addUser.placeholder': '搜索用户',
   'team.action.editTeam': '编辑团队',
   'team.action.addTeam': '添加团队',

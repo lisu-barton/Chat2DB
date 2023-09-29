@@ -4,6 +4,7 @@ import Iconfont from '@/components/Iconfont';
 import { Modal } from 'antd';
 import i18n from '@/i18n';
 import BaseSetting from './BaseSetting';
+import LdapSetting from './LdapSetting';
 import AISetting from './AiSetting';
 import ProxySetting from './ProxySetting';
 import About from './About';
@@ -73,6 +74,11 @@ function Setting(props: IProps) {
       label: i18n('setting.nav.basic'),
       icon: '\ue795',
       body: <BaseSetting />,
+    },
+    {
+      label: i18n('setting.nav.ldap'),
+      icon: '\ue775',
+      body: <LdapSetting />,
     },
     {
       label: i18n('setting.nav.customAi'),
