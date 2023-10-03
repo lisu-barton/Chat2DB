@@ -4,6 +4,7 @@ package ai.chat2db.server.admin.api.controller.user.vo;
 import java.util.Date;
 
 import ai.chat2db.server.common.api.controller.vo.SimpleUserVO;
+import ai.chat2db.server.domain.api.enums.AccountTypeEnum;
 import ai.chat2db.server.domain.api.enums.RoleCodeEnum;
 import ai.chat2db.server.domain.api.enums.ValidStatusEnum;
 import jakarta.validation.constraints.NotNull;
@@ -54,6 +55,12 @@ public class UserPageQueryVO {
      */
     private String roleCode;
 
+    /**
+     * 用户注册类型
+     *
+     * @see AccountTypeEnum
+     */
+    private String accountType;
 
     /**
      * 修改时间

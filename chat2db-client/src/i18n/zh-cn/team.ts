@@ -32,6 +32,7 @@ export default {
   'team.user.userName': '用户名',
   'team.user.nickName': '昵称',
   'team.user.status': '状态',
+  'team.user.accountType': '类型',
   'team.user.addForm.userName': '用户名',
   'team.user.addForm.nickName': '昵称',
   'team.user.addForm.email': '邮箱',

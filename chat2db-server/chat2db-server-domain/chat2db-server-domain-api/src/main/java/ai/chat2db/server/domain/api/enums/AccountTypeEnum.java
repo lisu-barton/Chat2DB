@@ -4,27 +4,27 @@ import ai.chat2db.server.tools.base.enums.BaseEnum;
 import lombok.Getter;
 
 /**
- * export type
+ * account type
  *
- * @author Jiaju Zhuang
+ * @author Barton li
  */
 @Getter
-public enum ExportTypeEnum implements BaseEnum<String> {
+public enum AccountTypeEnum implements BaseEnum<String> {
     /**
-     * CSV
+     * normal
      */
-    CSV("CSV"),
+    NORMAL("NORMAL"),
 
     /**
-     * INSERT
+     * LDAP
      */
-    INSERT("INSERT"),
+    LDAP("LDAP"),
 
     ;
 
     final String description;
 
-    ExportTypeEnum(String description) {
+    AccountTypeEnum(String description) {
         this.description = description;
     }
 

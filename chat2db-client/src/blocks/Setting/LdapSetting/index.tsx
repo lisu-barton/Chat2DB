@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import configService from '@/service/config';
-import { Alert, Button, Input, Radio, RadioChangeEvent, Spin } from 'antd';
+import { Alert, Button, Input, Radio, Spin } from 'antd';
 import i18n from '@/i18n';
 import classnames from 'classnames';
 import { LdapConfig } from '@/typings/ldap';
@@ -8,13 +8,8 @@ import styles from './index.less';
 import { getUser } from '@/service/user';
 import { ILoginUser, IRole } from '@/typings/user';
 
-interface IProps {
-  handleApplyLdapConfig: (ldapConfig: LdapConfig) => void;
-  ldapConfig: LdapConfig;
-}
-
-// openAI 的设置项
-export default function SettingLdap(props: IProps) {
+// ldap 的设置项
+export default function LdapSetting() {
   const [ldapConfig, setLdapConfig] = useState<LdapConfig>();
   const [userInfo, setUserInfo] = useState<ILoginUser>();
   const [loading, setLoading] = useState(true);
@@ -97,7 +92,8 @@ export default function SettingLdap(props: IProps) {
         </div>
         <div className={styles.title}>Password</div>
         <div className={classnames(styles.content, styles.chatGPTKey)}>
-          <Input
+          <Input.Password
+            maxLength={30}
             placeholder={i18n('setting.placeholder.ldap.password')}
             value={ldapConfig?.password}
             onChange={(e) => {

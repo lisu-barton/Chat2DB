@@ -2,6 +2,7 @@ package ai.chat2db.server.domain.api.model;
 
 import java.util.Date;
 
+import ai.chat2db.server.domain.api.enums.AccountTypeEnum;
 import ai.chat2db.server.domain.api.enums.RoleCodeEnum;
 import ai.chat2db.server.domain.api.enums.ValidStatusEnum;
 import jakarta.validation.constraints.NotNull;
@@ -64,6 +65,13 @@ public class User {
      */
     @NotNull
     private String status;
+
+    /**
+     * 用户注册类型
+     *
+     * @see AccountTypeEnum
+     */
+    private String accountType;
 
     /**
      * 修改时间

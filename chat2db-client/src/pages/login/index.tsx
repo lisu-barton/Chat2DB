@@ -40,7 +40,7 @@ const App: React.FC = () => {
             </div>
           }
         >
-          <div className={styles.whyLogin}>{i18n('login.text.tips.title')}</div>
+          {/* <div className={styles.whyLogin}>{i18n('login.text.tips.title')}</div> */}
         </Tooltip>
 
         <Form className={styles.loginForm} size="large" onFinish={handleLogin}>

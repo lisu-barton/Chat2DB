@@ -1,5 +1,6 @@
 package ai.chat2db.server.domain.api.param.user;
 
+import ai.chat2db.server.domain.api.enums.AccountTypeEnum;
 import ai.chat2db.server.domain.api.enums.RoleCodeEnum;
 import ai.chat2db.server.domain.api.enums.ValidStatusEnum;
 import jakarta.validation.constraints.NotNull;
@@ -51,4 +52,13 @@ public class UserCreateParam {
      */
     @NotNull
     private String status;
+
+    /**
+     * 用户类型
+     *
+     * @see AccountTypeEnum
+     */
+    @NotNull
+    private String accountType;
+
 }

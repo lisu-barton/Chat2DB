@@ -38,6 +38,12 @@
             <artifactId>chat2db-server-domain-core</artifactId>
         </dependency>
 
+        <!-- Ldap -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-ldap</artifactId>
+        </dependency>
+
         <!-- 日志用logback -->
         <dependency>
             <groupId>org.slf4j</groupId>

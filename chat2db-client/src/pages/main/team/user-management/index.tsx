@@ -1,9 +1,9 @@
-import { createUser, deleteUser, getUserManagementList, updateUser } from '@/service/team';
-import { Button, Form, Input, Modal, Popconfirm, Radio, Table, Tag, message } from 'antd';
+import { createUser, deleteUser, getUserManagementList, getLdapUserManagementList, updateUser } from '@/service/team';
+import { Button, Form, Input, Select, Modal, Popconfirm, Radio, Table, Tag, message } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import styles from './index.less';
-import { AffiliationType, IUserVO, RoleType, StatusType } from '@/typings/team';
+import { AffiliationType, IUserVO, RoleType, StatusType, AccountType, ILdapUserVO } from '@/typings/team';
 import i18n from '@/i18n';
 import UniversalDrawer from '../universal-drawer';
 
@@ -18,6 +18,7 @@ const requireRule = { required: true, message: i18n('common.form.error.required'
 function UserManagement() {
   const [form] = Form.useForm();
   const [dataSource, setDataSource] = useState<IUserVO[]>([]);
+  const [ldapSource, setLdapSource] = useState<ILdapUserVO[]>([]);
   const [pagination, setPagination] = useState({
     searchKey: '',
     current: 1,
@@ -25,9 +26,10 @@ function UserManagement() {
     total: 0,
     showSizeChanger: true,
     showQuickJumper: true,
-    pageSizeOptions: ['10', '20', '30', '40'],
+    pageSizeOptions: ['10', '20', '30', '100'],
   });
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isLdapModalVisible, setIsLdapModalVisible] = useState(false);
   const [drawerInfo, setDrawerInfo] = useState<{ open: boolean; type?: AffiliationType; id?: number }>({
     open: false,
   })
@@ -45,10 +47,21 @@ function UserManagement() {
         key: 'nickName',
       },
       {
+        title: i18n('team.user.addForm.email'),
+        dataIndex: 'email',
+        key: 'email',
+      },
+      {
         title: i18n('team.user.status'),
         dataIndex: 'status',
         key: 'status',
         render: (status: StatusType) => <Tag color={status === StatusType.VALID ? 'green' : 'red'}>{status}</Tag>,
+      },
+      {
+        title: i18n('team.user.accountType'),
+        dataIndex: 'accountType',
+        key: 'accountType',
+        render: (accountType: AccountType) => <Tag color={accountType === AccountType.NORMAL ? 'green' : 'yellow'}>{accountType}</Tag>,
       },
       {
         title: i18n('common.text.action'),
@@ -100,6 +113,7 @@ function UserManagement() {
 
   useEffect(() => {
     queryUserList();
+    queryLdapUserList();
   }, [pagination.current, pagination.pageSize, pagination.searchKey]);
 
   const queryUserList = async () => {
@@ -107,6 +121,13 @@ function UserManagement() {
     let res = await getUserManagementList({ searchKey, pageNo, pageSize });
     if (res) {
       setDataSource(res?.data ?? []);
+    }
+  };
+
+  const queryLdapUserList = async () => {
+    let res = await getLdapUserManagementList({});
+    if (res) {
+      setLdapSource(res);
     }
   };
 
@@ -148,6 +169,22 @@ function UserManagement() {
     return form.getFieldValue('id') !== undefined;
   }, [form.getFieldValue('id')])
 
+  const handleUserNameChange = (value: string) => {
+    console.log('handleUserNameChange:', value);
+    let data = ldapSource.find(it=> it.userName == value);
+    if (!data) {
+      return;
+    }
+
+    form.setFieldsValue(data);
+    const formValues = form.getFieldsValue(true);
+    console.log(form)
+  };
+  
+  // Filter `option.label` match the user type `input`
+  const filterUserNameOption = (input: string, option?: { nickName: string; userName: string }) =>
+    (option?.nickName ?? '').toLowerCase().includes(input.toLowerCase());
+  
 
   console.log('form', form.getFieldsValue(true))
   return (
@@ -160,12 +197,20 @@ function UserManagement() {
           onSearch={handleSearch}
           enterButton={<SearchOutlined />}
         />
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => {
-          form.resetFields();
-          setIsModalVisible(true)
-        }}>
-          {i18n('team.action.addUser')}
-        </Button>
+        <div>
+          <Button type="primary" style={{ marginRight: '10px' }} icon={<PlusOutlined />} onClick={() => {
+            form.resetFields();
+            setIsModalVisible(true)
+          }}>
+            {i18n('team.action.addUser')}
+          </Button>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => {
+            form.resetFields();
+            setIsLdapModalVisible(true)
+          }}>
+            {i18n('team.action.addLdapUser')}
+          </Button>
+        </div>
       </div>
       <Table
         rowKey={'id'}
@@ -205,12 +250,13 @@ function UserManagement() {
           form={form}
           autoComplete={'off'}
           initialValues={{
+            accountType: AccountType.NORMAL,
             roleCode: RoleType.USER,
             status: StatusType.VALID,
           }}
         >
           <Form.Item label={i18n('team.user.addForm.userName')} name="userName" rules={[requireRule]}>
-            <Input maxLength={50} showCount autoComplete='off' />
+            <Input maxLength={50} showCount autoComplete='off' readOnly={isEditing && form.getFieldValue("accountType")==AccountType.LDAP}/>
           </Form.Item>
           <Form.Item label={i18n('team.user.addForm.nickName')} name="nickName" rules={[requireRule]}>
             <Input maxLength={100} showCount />
@@ -221,8 +267,81 @@ function UserManagement() {
           }]}>
             <Input autoComplete='off' />
           </Form.Item>
-          <Form.Item label={i18n('team.user.addForm.password')} name="password" rules={[requireRule]}>
-            <Input.Password maxLength={30} placeholder={isEditing ? '******' : ''} autoComplete='fake-password' />
+          {
+            form.getFieldValue("accountType")==AccountType.LDAP ? "" : (
+            <Form.Item label={i18n('team.user.addForm.password')} name="password" rules={[requireRule]}>
+              <Input.Password maxLength={30} placeholder={isEditing ? '******' : ''} autoComplete='fake-password' />
+            </Form.Item>
+            )
+          }
+          <Form.Item label={i18n('team.user.addForm.roleCode')} name="roleCode" rules={[requireRule]}>
+            <Radio.Group>
+              <Radio value={RoleType.ADMIN}>{i18n('team.user.addForm.roleCode.admin')}</Radio>
+              <Radio value={RoleType.USER}>{i18n('team.user.addForm.roleCode.user')}</Radio>
+            </Radio.Group>
+          </Form.Item>
+          <Form.Item label={i18n('team.user.addForm.status')} name="status" rules={[requireRule]}>
+            <Radio.Group>
+              <Radio value={StatusType.VALID}>{i18n('team.user.addForm.status.valid')}</Radio>
+              <Radio value={StatusType.INVALID}>{i18n('team.user.addForm.status.invalid')}</Radio>
+            </Radio.Group>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        title={i18n('team.action.addLdapUser')}
+        open={isLdapModalVisible}
+        onOk={() => {
+          form
+            .validateFields()
+            .then((values) => {
+              const formValues = form.getFieldsValue(true);
+              handleCreateOrUpdateUser(formValues);
+              setIsLdapModalVisible(false);
+              form.resetFields();
+            })
+            .catch((errorInfo) => {
+              form.scrollToField(errorInfo.errorFields[0].name);
+              form.setFields(errorInfo.errorFields);
+            })
+            .finally(() => {
+              form.resetFields();
+            })
+        }}
+        onCancel={() => {
+          form.resetFields();
+          setIsLdapModalVisible(false);
+        }}
+      >
+        <Form
+          {...formItemLayout}
+          form={form}
+          autoComplete={'off'}
+          initialValues={{
+            accountType: AccountType.LDAP,
+            password: "****",
+            roleCode: RoleType.USER,
+            status: StatusType.VALID,
+          }}
+        >
+          <Form.Item label={i18n('team.user.addForm.userName')} name="userName" rules={[requireRule]}>
+            {/* <Input maxLength={50} autoComplete='off' /> */}
+            <Select
+              // mode="multiple"
+              showSearch
+              allowClear
+              style={{ width: '100%' }}
+              placeholder="Please select username"
+              filterOption={filterUserNameOption}
+              onChange={handleUserNameChange}
+            >
+              {ldapSource?.map((t) => (
+                <Option key={t.userName} value={t.userName}>
+                {t.nickName}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
           <Form.Item label={i18n('team.user.addForm.roleCode')} name="roleCode" rules={[requireRule]}>
             <Radio.Group>

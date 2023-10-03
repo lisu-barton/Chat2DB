@@ -25,6 +25,11 @@ export enum StatusType {
   VALID = 'VALID',
 }
 
+export enum AccountType {
+  NORMAL = 'NORMAL',
+  LDAP = 'LDAP',
+}
+
 export enum RoleType {
   ADMIN = 'ADMIN',
   USER = 'USER',
@@ -150,6 +155,22 @@ export interface IUserVO {
    * 用户状态
    */
   status: StatusType;
+  /**
+   * 用户名
+   */
+  userName: string;
+}
+
+
+export interface ILdapUserVO {
+  /**
+   * 邮箱
+   */
+  email: string;
+  /**
+   * 昵称
+   */
+  nickName: string;
   /**
    * 用户名
    */

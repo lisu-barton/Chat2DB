@@ -1,6 +1,6 @@
 import createRequest from './base';
 import { IConnectionDetails, IPageParams, IPageResponse } from '@/typings';
-import { IDataSourceAccessObjectVO, IDataSourceVO, ITeamAndUserVO, ITeamVO, ITeamWithDataSourceVO, ITeamWithUserVO, IUserVO, IUserWithDataSourceVO, IUserWithTeamVO, RoleType } from '@/typings/team';
+import { IDataSourceAccessObjectVO, IDataSourceVO, ITeamAndUserVO, ITeamVO, ITeamWithDataSourceVO, ITeamWithUserVO, IUserVO, IUserWithDataSourceVO, IUserWithTeamVO, RoleType, ILdapUserVO } from '@/typings/team';
 
 // =============================== DataSource ============================
 /**
@@ -59,6 +59,10 @@ const deleteUserOrTeamFromDataSource = createRequest<{ id: number }, boolean>('/
 
 /** 用户-用户管理列表查询 */
 const getUserManagementList = createRequest<IPageParams, IPageResponse<IUserVO>>('/api/admin/user/page', {
+  method: 'get',
+});
+
+const getLdapUserManagementList = createRequest<{}, IPageResponse<ILdapUserVO>>('/api/ldap/list', {
   method: 'get',
 });
 
@@ -211,6 +215,7 @@ export {
   deleteUserOrTeamFromDataSource,
   // user
   getUserManagementList,
+  getLdapUserManagementList,
   createUser,
   updateUser,
   deleteUser,

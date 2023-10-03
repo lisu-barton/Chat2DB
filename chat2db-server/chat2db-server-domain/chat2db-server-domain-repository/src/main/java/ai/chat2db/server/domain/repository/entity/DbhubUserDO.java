@@ -65,6 +65,13 @@ public class DbhubUserDO implements Serializable {
     private String roleCode;
 
     /**
+     * 用户注册类型
+     *
+     * @see AccountTypeEnum
+     */
+    private String accountType;
+
+    /**
      * 用户状态
      */
     private String status;
