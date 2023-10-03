@@ -28,4 +28,10 @@ public class LoginRequest {
      */
     @NotNull(message = "密码不能为空")
     private String password;
+
+    /**
+     * 账号类型
+     */
+    private String accountType;
+
 }

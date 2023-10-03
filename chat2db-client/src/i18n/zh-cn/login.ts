@@ -10,4 +10,7 @@ export default {
   'login.form.password.placeholder': '请输入密码',
   'login.button.login': '登 录',
   'login.tips.defaultPassword': '默认用户名和密码均为: chat2db',
+  'login.form.accountType': '账号类型',
+  'login.form.accountType.normal': '普通',
+  'login.form.accountType.ldap': 'Ldap',
 };

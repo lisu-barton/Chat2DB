@@ -1,7 +1,12 @@
 package ai.chat2db.server.start.controller.oauth;
 
+import ai.chat2db.server.domain.api.enums.AccountTypeEnum;
 import ai.chat2db.server.domain.api.enums.RoleCodeEnum;
 import ai.chat2db.server.domain.api.enums.ValidStatusEnum;
+import ai.chat2db.server.domain.api.model.Config;
+import ai.chat2db.server.domain.api.service.ConfigService;
+import ai.chat2db.server.start.config.util.LdapUtils;
+import com.alibaba.fastjson2.JSONObject;
 import jakarta.annotation.Resource;
 
 import ai.chat2db.server.domain.api.model.User;
@@ -18,6 +23,8 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaTokenConsts;
 import cn.hutool.crypto.digest.DigestUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,6 +45,9 @@ public class OauthController {
     @Resource
     private UserService userService;
 
+    @Resource
+    private ConfigService configService;
+
     /**
      * 用户名密码登录
      *
@@ -57,6 +67,14 @@ public class OauthController {
         if (RoleCodeEnum.DESKTOP.getDefaultUserId().equals(user.getId())) {
             throw new BusinessException("oauth.IllegalUserName");
         }
+        if (AccountTypeEnum.LDAP.getCode().equals(request.getAccountType())) {
+            if (authenticate(request)) {
+                return DataResult.of(doLogin(user));
+            }
+
+            throw new BusinessException("oauth.IllegalLdapUser");
+        }
+
         // Successfully logged in without modifying the administrator password
         if (RoleCodeEnum.ADMIN.getDefaultUserId().equals(user.getId()) && RoleCodeEnum.ADMIN.getPassword().equals(
             user.getPassword())) {
@@ -68,6 +86,18 @@ public class OauthController {
         }
         return DataResult.of(doLogin(user));
     }
+
+    private Boolean authenticate(LoginRequest request) {
+        DataResult<Config> dataResult = configService.find("ldap.setting.configure");
+        if (!dataResult.getSuccess()) {
+            return false;
+        }
+
+        EqualsFilter filter = new EqualsFilter("sAMAccountName", request.getUserName());
+        return LdapUtils.template(dataResult.getData().getContent())
+                .authenticate("", filter.toString(), request.getPassword());
+    }
+
 
     private Object doLogin(User user) {
         StpUtil.login(user.getId());

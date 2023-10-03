@@ -269,9 +269,9 @@ function UserManagement() {
           </Form.Item>
           {
             form.getFieldValue("accountType")==AccountType.LDAP ? "" : (
-            <Form.Item label={i18n('team.user.addForm.password')} name="password" rules={[requireRule]}>
-              <Input.Password maxLength={30} placeholder={isEditing ? '******' : ''} autoComplete='fake-password' />
-            </Form.Item>
+              <Form.Item label={i18n('team.user.addForm.password')} name="password" rules={[requireRule]}>
+                <Input.Password maxLength={30} placeholder={isEditing ? '******' : ''} autoComplete='fake-password' />
+              </Form.Item>
             )
           }
           <Form.Item label={i18n('team.user.addForm.roleCode')} name="roleCode" rules={[requireRule]}>

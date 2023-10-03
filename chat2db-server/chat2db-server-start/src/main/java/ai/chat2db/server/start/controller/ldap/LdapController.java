@@ -5,6 +5,7 @@ import ai.chat2db.server.domain.api.service.ConfigService;
 import ai.chat2db.server.start.config.util.LdapUtils;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import com.alibaba.fastjson2.JSONObject;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +28,7 @@ import static org.springframework.ldap.query.LdapQueryBuilder.query;
 @Slf4j
 public class LdapController {
 
-    @Autowired
+    @Resource
     private ConfigService configService;
 
     @Value("${chat2db.ldap.debug:true}")
@@ -69,19 +70,5 @@ public class LdapController {
 
         return DataResult.of(result);
     }
-
-    @PostMapping("login")
-    public DataResult<Boolean> authenticate(JSONObject data) {
-        DataResult<Config> dataResult = configService.find("ldap.setting.configure");
-        if (!dataResult.getSuccess()) {
-            return DataResult.error("", "Empty Ldap Setting");
-        }
-
-        EqualsFilter filter = new EqualsFilter("sAMAccountName", data.getString("username"));
-        boolean authenticate = LdapUtils.template(dataResult.getData().getContent())
-                .authenticate("", filter.toString(), data.getString("password"));
-        return DataResult.of(authenticate);
-    }
-
 
 }

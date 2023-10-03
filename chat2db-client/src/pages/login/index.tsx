@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Button, Form, Input, Tooltip } from 'antd';
+import { Button, Form, Input, Tooltip, Radio } from 'antd';
 import { getUser, userLogin } from '@/service/user';
-import { history } from 'umi';
+import { AccountType } from '@/typings/team';
 import LogoImg from '@/assets/logo/logo.png';
 import styles from './index.less';
 import Setting from '@/blocks/Setting';
@@ -12,11 +12,12 @@ import { useNavigate } from 'react-router-dom';
 interface IFormData {
   userName: string;
   password: string;
+  accountType: string;
 }
 
 const App: React.FC = () => {
   const navigate = useNavigate();
-  const handleLogin = async (formData: { userName: string; password: string }) => {
+  const handleLogin = async (formData: { userName: string; password: string; accountType: string }) => {
     let res = await userLogin(formData);
     if (res) {
       navigate('/');
@@ -31,7 +32,7 @@ const App: React.FC = () => {
       </div>
       <div className={styles.loginPlane}>
         <div className={styles.loginWelcome}>{i18n('login.text.welcome')}</div>
-        <Tooltip
+        {/* <Tooltip
           placement="right"
           color={window._AppThemePack.colorBgBase}
           title={
@@ -40,10 +41,15 @@ const App: React.FC = () => {
             </div>
           }
         >
-          {/* <div className={styles.whyLogin}>{i18n('login.text.tips.title')}</div> */}
-        </Tooltip>
+          <div className={styles.whyLogin}>{i18n('login.text.tips.title')}</div>
+        </Tooltip> */}
 
-        <Form className={styles.loginForm} size="large" onFinish={handleLogin}>
+        <Form className={styles.loginForm}
+              size="large" 
+              initialValues={{
+                accountType: AccountType.NORMAL,
+              }}
+              onFinish={handleLogin}>
           <Form.Item
             className={styles.loginFormItem}
             name="userName"
@@ -54,7 +60,13 @@ const App: React.FC = () => {
           <Form.Item name="password" rules={[{ required: true, message: i18n('login.form.password.placeholder') }]}>
             <Input.Password placeholder={i18n('login.form.password')} />
           </Form.Item>
-          <div className={styles.defaultPasswordTips}>{i18n('login.tips.defaultPassword')}</div>
+          <Form.Item label={i18n('login.form.accountType')} name="accountType" >
+            <Radio.Group>
+              <Radio value={AccountType.NORMAL}>{i18n('login.form.accountType.normal')}</Radio>
+              <Radio value={AccountType.LDAP}>{i18n('login.form.accountType.ldap')}</Radio>
+            </Radio.Group>
+          </Form.Item>
+          {/* <div className={styles.defaultPasswordTips}>{i18n('login.tips.defaultPassword')}</div> */}
           <Button type="primary" htmlType="submit" className={styles.loginFormSubmit}>
             {i18n('login.button.login')}
           </Button>
