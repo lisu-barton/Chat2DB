@@ -31,7 +31,7 @@ public class LdapController {
     @Resource
     private ConfigService configService;
 
-    @Value("${chat2db.ldap.debug:true}")
+    @Value("${chat2db.ldap.debug:false}")
     Boolean isDebug;
 
     /**
