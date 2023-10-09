@@ -164,7 +164,6 @@ function UserManagement() {
     queryUserList()
   }
 
-
   const isEditing = useMemo(() => {
     return form.getFieldValue('id') !== undefined;
   }, [form.getFieldValue('id')])
@@ -177,15 +176,12 @@ function UserManagement() {
     }
 
     form.setFieldsValue(data);
-    const formValues = form.getFieldsValue(true);
-    console.log(form)
   };
   
   // Filter `option.label` match the user type `input`
-  const filterUserNameOption = (input: string, option?: { nickName: string; userName: string }) =>
-    (option?.nickName ?? '').toLowerCase().includes(input.toLowerCase());
+  const filterUserNameOption = (input: string, option?: { children: string; key: string }) =>
+    (option?.children ?? '').toLowerCase().includes(input.toLowerCase());
   
-
   console.log('form', form.getFieldsValue(true))
   return (
     <div>
@@ -337,9 +333,9 @@ function UserManagement() {
               onChange={handleUserNameChange}
             >
               {ldapSource?.map((t) => (
-                <Option key={t.userName} value={t.userName}>
+                <Select.Option key={t.userName} value={t.userName}>
                 {t.nickName}
-                </Option>
+                </Select.Option>
               ))}
             </Select>
           </Form.Item>

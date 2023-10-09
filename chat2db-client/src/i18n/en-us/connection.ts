@@ -27,5 +27,5 @@ export default {
   'connection.text.downloading': 'Downloading...',
   'connection.label.private': 'Private',
   'connection.label.shared': 'Shared',
-
+  'connection.label.normal.user.warn': 'Please contact administrator to configure database setting',
 };

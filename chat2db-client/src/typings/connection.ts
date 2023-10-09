@@ -1,4 +1,4 @@
-import { DatabaseTypeCode, ConnectionEnv } from '@/constants';
+import { DatabaseTypeCode, ConnectionEnv, ConnectionKind } from '@/constants';
 
 export interface IConnectionExtendInfoItem {
   key: string;
@@ -23,6 +23,7 @@ export interface IConnectionDetails {
     jdbcDriverClass: string;
   };
   [key: string]: any;
+  kind: ConnectionKind;
 }
 
 export type ICreateConnectionDetails = Omit<IConnectionDetails, 'id'>

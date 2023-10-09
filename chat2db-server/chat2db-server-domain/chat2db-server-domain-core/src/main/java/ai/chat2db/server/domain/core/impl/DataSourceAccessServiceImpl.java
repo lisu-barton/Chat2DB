@@ -20,7 +20,6 @@ import ai.chat2db.server.domain.api.service.UserService;
 import ai.chat2db.server.domain.core.converter.DataSourceAccessConverter;
 import ai.chat2db.server.domain.core.converter.DataSourceConverter;
 import ai.chat2db.server.domain.repository.entity.DataSourceAccessDO;
-import ai.chat2db.server.domain.repository.entity.TeamUserDO;
 import ai.chat2db.server.domain.repository.mapper.DataSourceAccessCustomMapper;
 import ai.chat2db.server.domain.repository.mapper.DataSourceAccessMapper;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;

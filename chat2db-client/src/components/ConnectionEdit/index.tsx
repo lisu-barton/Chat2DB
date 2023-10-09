@@ -5,19 +5,21 @@ import classnames from 'classnames';
 import lodash from 'lodash';
 import { connect } from 'umi';
 import connectionService from '@/service/connection';
-import { DatabaseTypeCode, ConnectionEnvType, databaseMap } from '@/constants';
+import { DatabaseTypeCode, ConnectionEnvType, databaseMap, ConnectionKind } from '@/constants';
 import { dataSourceFormConfigs } from './config/dataSource';
 import { IConnectionConfig, IFormItem, ISelect } from './config/types';
 import { AuthenticationType } from './config/enum';
-import { IConnectionDetails } from '@/typings';
+import { IConnectionDetails, ILoginUser, IRole } from '@/typings';
 import { InputType } from './config/enum';
 import { deepClone } from '@/utils';
-import { Select, Form, Input, message, Table, Button, Collapse, Modal } from 'antd';
+import { Select, Form, Input, message, Table, Button, Collapse, Modal, Alert } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import LoadingGracile from '@/components/Loading/LoadingGracile';
 import Driver from './components/Driver';
 import { IConnectionModelType } from '@/models/connection';
+import { getUser } from '@/service/user';
+
 
 const { Option } = Select;
 
@@ -46,6 +48,7 @@ const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<I
   const { className, closeCreateConnection, submitCallback, connectionData, submit, connectionModel } = props;
   const [baseInfoForm] = Form.useForm();
   const [sshForm] = Form.useForm();
+  const [userInfo, setUserInfo] = useState<ILoginUser>();
   const [driveData, setDriveData] = useState<any>({});
   const [backfillData, setBackfillData] = useState<IConnectionDetails>(connectionData);
   const [loadings, setLoading] = useState({
@@ -56,6 +59,18 @@ const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<I
   });
   const { connectionEnvList } = connectionModel;
   const [envList, setEnvList] = useState<{ value: number, label: string }[]>([]);
+
+  const queryUserInfo = async () => {
+    try {
+      const res = await getUser();
+      setUserInfo(res);
+    } finally {
+    }
+  };
+
+  useEffect(() => {
+    queryUserInfo();
+  }, []);
 
   useEffect(() => {
     setEnvList(connectionEnvList?.map(t => {
@@ -265,6 +280,7 @@ const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<I
     });
   }
 
+
   return (
     <div ref={ref as any} className={classnames(styles.box, className)}>
       <LoadingContent className={styles.loadingContent} data={!loadings.backfillDataLoading}>
@@ -273,36 +289,43 @@ const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<I
             <Iconfont code={databaseMap[backfillData.type]?.icon}></Iconfont>
             <div>{databaseMap[backfillData.type]?.name}</div>
           </div>
-          <div className={styles.baseInfoBox}>
+
+          { (userInfo?.roleCode === IRole.USER && connectionData.kind == ConnectionKind.Shared) ?
+           (<Alert description={i18n('connection.label.normal.user.warn')} type="warning" showIcon />) : (
+           <div>
+           <div className={styles.baseInfoBox}>
             <RenderForm dataSourceFormConfigProps={dataSourceFormConfigPropsMemo} backfillData={backfillData!} form={baseInfoForm} tab="baseInfo" />
-          </div>
-          <Collapse defaultActiveKey={['driver']} items={getItems()} />
-          <div className={styles.formFooter}>
-            <div className={styles.test}>
-              {
-                <Button
-                  loading={loadings.testButton}
-                  onClick={saveConnection.bind(null, submitType.TEST)}
-                  className={styles.test}
-                >
-                  {i18n('connection.button.testConnection')}
+            </div>
+            <Collapse defaultActiveKey={['driver']} items={getItems()} />
+            <div className={styles.formFooter}>
+              <div className={styles.test}>
+                {
+                  <Button
+                    loading={loadings.testButton}
+                    onClick={saveConnection.bind(null, submitType.TEST)}
+                    className={styles.test}
+                  >
+                    {i18n('connection.button.testConnection')}
+                  </Button>
+                }
+              </div>
+              <div className={styles.rightButton}>
+                <Button onClick={onCancel} className={styles.cancel}>
+                  {i18n('common.button.cancel')}
                 </Button>
-              }
+                <Button
+                  className={styles.save}
+                  type="primary"
+                  loading={loadings.confirmButton}
+                  onClick={saveConnection.bind(null, backfillData.id ? submitType.UPDATE : submitType.SAVE)}
+                >
+                  {backfillData.id ? i18n('common.button.modify') : i18n('common.button.save')}
+                </Button>
+              </div>
             </div>
-            <div className={styles.rightButton}>
-              <Button onClick={onCancel} className={styles.cancel}>
-                {i18n('common.button.cancel')}
-              </Button>
-              <Button
-                className={styles.save}
-                type="primary"
-                loading={loadings.confirmButton}
-                onClick={saveConnection.bind(null, backfillData.id ? submitType.UPDATE : submitType.SAVE)}
-              >
-                {backfillData.id ? i18n('common.button.modify') : i18n('common.button.save')}
-              </Button>
-            </div>
-          </div>
+            </div>) }
+
+
         </div>
       </LoadingContent>
     </div>

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import java.util.Arrays;
 import java.util.List;
@@ -61,14 +62,23 @@ public class LdapController {
                 new AttributesMapper<JSONObject>() {
                     public JSONObject mapFromAttributes(Attributes attrs) throws NamingException {
                         JSONObject object = new JSONObject();
-                        object.put("email", attrs.get("userPrincipalName").get());
-                        object.put("nickName", attrs.get("displayName").get());
-                        object.put("userName", attrs.get("sAMAccountName").get());
+                        object.put("email", getAttr(attrs, "userPrincipalName"));
+                        object.put("nickName", getAttr(attrs, "name"));
+                        object.put("userName", getAttr(attrs, "sAMAccountName"));
                         return object;
                     }
                 });
 
         return DataResult.of(result);
+    }
+
+    private Object getAttr(Attributes attrs, String id) throws NamingException {
+        Attribute attr = attrs.get(id);
+        if (attr == null) {
+            return null;
+        }
+
+        return attr.get();
     }
 
 }

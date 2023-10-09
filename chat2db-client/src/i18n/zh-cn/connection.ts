@@ -27,4 +27,5 @@ export default {
   'connection.text.downloading': '下载中...',
   'connection.label.private': '私有',
   'connection.label.shared': '共享',
+  'connection.label.normal.user.warn': '请联系管理员进行数据库设置',
 }

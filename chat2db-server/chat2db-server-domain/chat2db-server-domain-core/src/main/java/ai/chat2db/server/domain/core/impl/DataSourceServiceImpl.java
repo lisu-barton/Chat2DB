@@ -1,10 +1,12 @@
 package ai.chat2db.server.domain.core.impl;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.List;
 
 import ai.chat2db.server.domain.api.enums.DataSourceKindEnum;
 import ai.chat2db.server.domain.api.model.DataSource;
+import ai.chat2db.server.domain.api.model.Environment;
 import ai.chat2db.server.domain.api.param.datasource.DataSourceCloseParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourceCreateParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourcePageQueryParam;
@@ -107,7 +109,7 @@ public class DataSourceServiceImpl implements DataSourceService {
                 return;
             }
             try (Connection connection = IDriverManager.getConnection(dataSource.getUrl(), dataSource.getUserName(),
-                dataSource.getPassword(), dataSource.getDriverConfig(), dataSource.getExtendMap())) {
+                    dataSource.getPassword(), dataSource.getDriverConfig(), dataSource.getExtendMap())) {
                 DatabaseQueryAllParam databaseQueryAllParam = new DatabaseQueryAllParam();
                 databaseQueryAllParam.setDataSourceId(dataSourceId);
                 databaseQueryAllParam.setConnection(connection);
@@ -155,11 +157,18 @@ public class DataSourceServiceImpl implements DataSourceService {
     @Override
     public DataResult<DataSource> queryExistent(Long id, DataSourceSelector selector) {
         DataResult<DataSource> dataResult = queryById(id);
-        if (dataResult.getData() == null) {
+        DataSource data = dataResult.getData();
+        if (data == null) {
             throw new DataNotFoundException();
         }
 
-        fillData(Lists.newArrayList(dataResult.getData()), selector);
+        fillData(Lists.newArrayList(data), selector);
+
+        // 如果是普通用户，不能查看shared的链接信息
+        LoginUser loginUser = ContextUtils.getLoginUser();
+        if (!loginUser.getAdmin() && DataSourceKindEnum.SHARED.getCode().equals(data.getKind())) {
+            eraseSensitive(data);
+        }
 
         return dataResult;
     }
@@ -184,8 +193,8 @@ public class DataSourceServiceImpl implements DataSourceService {
         LambdaQueryWrapper<DataSourceDO> queryWrapper = new LambdaQueryWrapper<>();
         if (StringUtils.isNotBlank(param.getSearchKey())) {
             queryWrapper.and(wrapper -> wrapper.like(DataSourceDO::getAlias, "%" + param.getSearchKey() + "%")
-                .or()
-                .like(DataSourceDO::getUrl, "%" + param.getSearchKey() + "%"));
+                    .or()
+                    .like(DataSourceDO::getUrl, "%" + param.getSearchKey() + "%"));
         }
         Integer start = param.getPageNo();
         Integer offset = param.getPageSize();
@@ -203,13 +212,21 @@ public class DataSourceServiceImpl implements DataSourceService {
         LoginUser loginUser = ContextUtils.getLoginUser();
 
         IPage<DataSourceDO> iPage = dataSourceCustomMapper.selectPageWithPermission(
-            new Page<>(param.getPageNo(), param.getPageSize()),
-            BooleanUtils.isTrue(loginUser.getAdmin()), loginUser.getId(), param.getSearchKey(), param.getKind(),
-            EasySqlUtils.orderBy(param.getOrderByList()));
+                new Page<>(param.getPageNo(), param.getPageSize()),
+                BooleanUtils.isTrue(loginUser.getAdmin()), loginUser.getId(), param.getSearchKey(), param.getKind(),
+                EasySqlUtils.orderBy(param.getOrderByList()));
 
         List<DataSource> dataSources = dataSourceConverter.do2dto(iPage.getRecords());
-
         fillData(dataSources, selector);
+
+        // 如果是普通用户，不能查看shared的链接信息
+        if (!loginUser.getAdmin()) {
+            dataSources.forEach(it -> {
+                if (DataSourceKindEnum.SHARED.getCode().equals(it.getKind())) {
+                    eraseSensitive(it);
+                }
+            });
+        }
 
         return PageResult.of(dataSources, iPage.getTotal(), param);
 
@@ -235,18 +252,18 @@ public class DataSourceServiceImpl implements DataSourceService {
     @Override
     public ActionResult preConnect(DataSourcePreConnectParam param) {
         DataSourceTestParam testParam
-            = dataSourceConverter.param2param(param);
+                = dataSourceConverter.param2param(param);
         DriverConfig driverConfig = testParam.getDriverConfig();
         if (driverConfig == null || !driverConfig.notEmpty()) {
             driverConfig = Chat2DBContext.getDefaultDriverConfig(param.getType());
         }
         DataSourceConnect dataSourceConnect = JdbcUtils.testConnect(testParam.getUrl(), testParam.getHost(),
-            testParam.getPort(),
-            testParam.getUsername(), testParam.getPassword(), testParam.getDbType(),
-            driverConfig, param.getSsh(), KeyValue.toMap(param.getExtendInfo()));
+                testParam.getPort(),
+                testParam.getUsername(), testParam.getPassword(), testParam.getDbType(),
+                driverConfig, param.getSsh(), KeyValue.toMap(param.getExtendInfo()));
         if (BooleanUtils.isNotTrue(dataSourceConnect.getSuccess())) {
             return ActionResult.fail(dataSourceConnect.getMessage(), dataSourceConnect.getDescription(),
-                dataSourceConnect.getErrorDetail());
+                    dataSourceConnect.getErrorDetail());
         }
         return ActionResult.isSuccess();
     }
@@ -265,6 +282,15 @@ public class DataSourceServiceImpl implements DataSourceService {
         closeParam.setDataSourceId(id);
         SQLExecutor.getInstance().close();
         return ActionResult.isSuccess();
+    }
+
+    private void eraseSensitive(DataSource source) {
+        source.setUserName("***");
+        source.setPassword("***");
+        source.setUrl("***");
+        source.setHost("***");
+        source.setPort("***");
+        source.setSsh(null);
     }
 
     private void fillData(List<DataSource> list, DataSourceSelector selector) {
