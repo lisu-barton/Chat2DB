@@ -19,9 +19,10 @@ export default function AboutUs() {
           {i18n('setting.text.currentVersion')}:v{__APP_VERSION__} build
           {formatDate(getUserTimezoneTimestamp(__BUILD_TIME__), 'yyyyMMddhhmmss')}
         </div>
-        {/* <a target="blank" href={GITHUB_URL} className={styles.log}>
+        {/* primerobotics */}
+        <a target="blank" href={GITHUB_URL} className={styles.log}>
           {i18n('setting.text.viewingUpdateLogs')}
-        </a> */}
+        </a>
       </div>
     </div>
   );

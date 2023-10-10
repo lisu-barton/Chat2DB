@@ -43,13 +43,14 @@ let navConfig: INavItem[] = [
     isLoad: false,
     component: <Connection />,
   },
-  // {
-  //   key: 'github',
-  //   icon: '\ue885',
-  //   iconFontSize: 26,
-  //   isLoad: false,
-  //   openBrowser: 'https://github.com/chat2db/Chat2DB/',
-  // },
+  // primerobotics
+  {
+    key: 'github',
+    icon: '\ue885',
+    iconFontSize: 26,
+    isLoad: false,
+    openBrowser: 'https://github.com/chat2db/Chat2DB/',
+  },
 ];
 
 const initPageIndex = navConfig.findIndex((t) => `${t.key}` === localStorage.getItem('curPage'));

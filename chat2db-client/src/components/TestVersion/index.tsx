@@ -15,7 +15,8 @@ export default memo<IProps>(function TestVersion(props) {
   const [notificationApi, notificationDom] = notification.useNotification();
 
   useEffect(() => {
-    // getVersions();
+    // primerobotics
+    getVersions();
   }, [])
 
   const close = () => { };
