@@ -120,6 +120,12 @@ function UserManagement() {
     const { searchKey, current: pageNo, pageSize } = pagination;
     let res = await getUserManagementList({ searchKey, pageNo, pageSize });
     if (res) {
+      setPagination({
+        ...pagination,
+        current: res.pageNo,
+        pageSize: res.pageSize,
+        total: res.total,
+      });
       setDataSource(res?.data ?? []);
     }
   };
