@@ -26,7 +26,7 @@ function UserManagement() {
     total: 0,
     showSizeChanger: true,
     showQuickJumper: true,
-    pageSizeOptions: ['10', '20', '30', '100'],
+    pageSizeOptions: ['5', '10', '20', '30', '100'],
   });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLdapModalVisible, setIsLdapModalVisible] = useState(false);
@@ -120,6 +120,12 @@ function UserManagement() {
     const { searchKey, current: pageNo, pageSize } = pagination;
     let res = await getUserManagementList({ searchKey, pageNo, pageSize });
     if (res) {
+      setPagination({
+        ...pagination,
+        current: res.pageNo,
+        pageSize: res.pageSize,
+        total: res.total,
+      });
       setDataSource(res?.data ?? []);
     }
   };
