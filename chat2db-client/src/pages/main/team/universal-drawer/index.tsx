@@ -317,7 +317,7 @@ function UniversalDrawer(props: IProps) {
     setPagination({
       searchKey: '',
       current: 1,
-      pageSize: 10,
+      pageSize: 999,
       total: 0,
       showSizeChanger: true,
       showQuickJumper: true,
@@ -345,12 +345,6 @@ function UniversalDrawer(props: IProps) {
       [managementDataByType?.byIdKey]: props.byId,
     });
     if (res) {
-      setPagination({
-        ...pagination,
-        current: res.pageNo,
-        pageSize: res.pageSize,
-        total: res.total,
-      });
       setDataSource(res?.data ?? []);
     }
   };
@@ -391,7 +385,7 @@ function UniversalDrawer(props: IProps) {
           {i18n('common.button.add')}
         </Button>
       </div>
-      <Table rowKey={'id'} columns={managementDataByType?.columns} dataSource={dataSource} pagination={pagination} />
+      <Table rowKey={'id'} columns={managementDataByType?.columns} dataSource={dataSource} scroll={{y:'calc(100vh - 220px)'}}/>
 
       <UniversalAddModal
         {...modalInfo}
