@@ -220,6 +220,7 @@ function UserManagement() {
         columns={columns}
         pagination={pagination}
         onChange={handleTableChange}
+        scroll={{y:'calc(100vh - 220px)'}}
       />
 
       <Modal

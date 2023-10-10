@@ -88,6 +88,12 @@ function DataSourceManagement() {
     const { searchKey, current: pageNo, pageSize } = pagination;
     let res = await getDataSourceList({ searchKey, pageNo, pageSize });
     if (res) {
+      setPagination({
+        ...pagination,
+        current: res.pageNo,
+        pageSize: res.pageSize,
+        total: res.total,
+      });
       setDataSource(res?.data ?? []);
     }
   };
@@ -168,6 +174,7 @@ function DataSourceManagement() {
         columns={columns}
         pagination={pagination}
         onChange={handleTableChange}
+        scroll={{y:'calc(100vh - 220px)'}}
       />
 
       <Drawer

@@ -345,6 +345,12 @@ function UniversalDrawer(props: IProps) {
       [managementDataByType?.byIdKey]: props.byId,
     });
     if (res) {
+      setPagination({
+        ...pagination,
+        current: res.pageNo,
+        pageSize: res.pageSize,
+        total: res.total,
+      });
       setDataSource(res?.data ?? []);
     }
   };
@@ -385,7 +391,7 @@ function UniversalDrawer(props: IProps) {
           {i18n('common.button.add')}
         </Button>
       </div>
-      <Table rowKey={'id'} columns={managementDataByType?.columns} dataSource={dataSource} />
+      <Table rowKey={'id'} columns={managementDataByType?.columns} dataSource={dataSource} pagination={pagination} />
 
       <UniversalAddModal
         {...modalInfo}

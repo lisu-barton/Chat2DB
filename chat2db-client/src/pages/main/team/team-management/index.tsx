@@ -111,6 +111,12 @@ function TeamManagement() {
       const { searchKey, current: pageNo, pageSize } = pagination;
       let res = await getTeamManagementList({ searchKey, pageNo, pageSize });
       if (res) {
+        setPagination({
+          ...pagination,
+          current: res.pageNo,
+          pageSize: res.pageSize,
+          total: res.total,
+        });
         setDataSource(res?.data ?? []);
       }
     } catch (error) {
@@ -175,6 +181,7 @@ function TeamManagement() {
         columns={columns}
         pagination={pagination}
         onChange={handleTableChange}
+        scroll={{y:'calc(100vh - 220px)'}}
       />
 
       <Modal
