@@ -13,12 +13,12 @@ public enum RoleCodeEnum implements BaseEnum<String> {
     /**
      * DESKTOP
      */
-    DESKTOP("DESKTOP", 1L, "_desktop_default_user_name", "_desktop_default_user_name"),
+    DESKTOP("DESKTOP", 1L, "_desktop_default_user_name", "Prime@db$2023_desktop_default_user_name"),
 
     /**
      * ADMIN
      */
-    ADMIN("ADMIN", 2L, "chat2db", "chat2db"),
+    ADMIN("ADMIN", 2L, "prime2db", "Prime@db$2023"),
 
     /**
      * USER

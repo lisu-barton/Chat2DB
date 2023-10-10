@@ -26,7 +26,7 @@ function UserManagement() {
     total: 0,
     showSizeChanger: true,
     showQuickJumper: true,
-    pageSizeOptions: ['10', '20', '30', '100'],
+    pageSizeOptions: ['5', '10', '20', '30', '100'],
   });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isLdapModalVisible, setIsLdapModalVisible] = useState(false);
@@ -220,6 +220,7 @@ function UserManagement() {
         columns={columns}
         pagination={pagination}
         onChange={handleTableChange}
+        scroll={{y:'calc(100vh - 220px)'}}
       />
 
       <Modal

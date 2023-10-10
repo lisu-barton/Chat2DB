@@ -2,7 +2,10 @@ package ai.chat2db.server.web.api.controller.rdb;
 
 import java.util.List;
 
+import ai.chat2db.server.domain.api.enums.DataSourceKindEnum;
+import ai.chat2db.server.domain.api.model.DataSource;
 import ai.chat2db.server.domain.api.param.*;
+import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.service.DatabaseService;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
 import ai.chat2db.server.domain.api.service.TableService;
@@ -11,6 +14,9 @@ import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
+import ai.chat2db.server.tools.common.model.LoginUser;
+import ai.chat2db.server.tools.common.util.ContextUtils;
+import ai.chat2db.server.tools.common.util.I18nUtils;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
 import ai.chat2db.server.web.api.controller.rdb.request.*;
@@ -47,6 +53,9 @@ public class TableController {
 
     @Autowired
     private DatabaseService databaseService;
+
+    @Autowired
+    private DataSourceService dataSourceService;
 
 
     /**
@@ -196,6 +205,16 @@ public class TableController {
      */
     @PostMapping("/delete")
     public ActionResult delete(@Valid @RequestBody TableDeleteRequest request) {
+        LoginUser loginUser = ContextUtils.queryLoginUser();
+        if (loginUser == null) {
+            return ActionResult.fail("common.notLogin", I18nUtils.getMessage("common.notLogin"), "");
+        }
+
+        DataResult<DataSource> result = dataSourceService.queryById(request.getDataSourceId());
+        if (result.getData() != null && DataSourceKindEnum.SHARED.getCode().equals(result.getData().getKind()) && !loginUser.getAdmin()) {
+            return ActionResult.fail("common.notPermission", I18nUtils.getMessage("common.notPermission"), "");
+        }
+
         DropParam dropParam = rdbWebConverter.tableDelete2dropParam(request);
         return tableService.drop(dropParam);
     }
