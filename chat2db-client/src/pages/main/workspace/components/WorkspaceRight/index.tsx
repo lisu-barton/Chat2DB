@@ -2,6 +2,7 @@ import React, { memo, useRef, useEffect, useState } from 'react';
 import { connect } from 'umi';
 import styles from './index.less';
 import classnames from 'classnames';
+import lodash from 'lodash';
 import { ConsoleOpenedStatus, ConsoleStatus, DatabaseTypeCode, TreeNodeType, operationTypeConfig, OperationType } from '@/constants';
 import { IConsole, ICreateConsole } from '@/typings';
 import historyService from '@/service/history';
@@ -16,18 +17,21 @@ import { handleLocalStorageSavedConsole } from '@/utils';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import Tree from 'antd/es/tree/Tree';
 import Iconfont from '@/components/Iconfont';
+import { IConnectionModelState } from '@/models/connection';
 
 interface IProps {
   className?: string;
   workspaceModel: IWorkspaceModelState;
+  connectionModel: IConnectionModelState;
   aiModel: IAIState;
   dispatch: any;
 }
 
 const WorkspaceRight = memo<IProps>(function (props) {
   const [activeConsoleId, setActiveConsoleId] = useState<number>();
-  const { className, aiModel, workspaceModel, dispatch } = props;
+  const { className, aiModel, workspaceModel, connectionModel, dispatch } = props;
   const { curWorkspaceParams, doubleClickTreeNodeData, openConsoleList, curConsoleId } = workspaceModel;
+  const { connectionList, curConnection } = connectionModel;
   const openConsoleListRef = useRef(openConsoleList);
 
   useEffect(() => {
@@ -199,10 +203,36 @@ const WorkspaceRight = memo<IProps>(function (props) {
   useUpdateEffect(() => {
     if (activeConsoleId) {
       localStorage.setItem('active-console-id', activeConsoleId.toString())
+      
+      const activeConsole = openConsoleList?.find((t) => t.id === activeConsoleId);
+      if (activeConsole && activeConsole.connectable) {
+        const payload: any = {
+          dataSourceId: activeConsole.dataSourceId,
+          dataSourceName: activeConsole.dataSourceName,
+          databaseType: activeConsole.type,
+          databaseName: activeConsole.databaseName,
+          schemaName: activeConsole.schemaName,
+        }
+
+        if (!lodash.isEqual(curWorkspaceParams, payload)) {
+          dispatch({
+            type: 'workspace/setCurWorkspaceParams',
+            payload,
+          });
+        }
+
+        //
+        if (curConnection?.id != activeConsole.dataSourceId) {
+          connectionChange(activeConsole.dataSourceId)
+        }
+       
+      }
+
     } else {
       localStorage.removeItem('active-console-id')
     }
   }, [activeConsoleId])
+
 
   useEffect(() => {
     openConsoleListRef.current = openConsoleList;
@@ -238,6 +268,17 @@ const WorkspaceRight = memo<IProps>(function (props) {
     }
   }, [openConsoleList]);
 
+  // 连接切换
+  function connectionChange(id: any) {
+    connectionList.map(t => {
+      if (t.id === id) {
+        dispatch({
+          type: 'connection/setCurConnection',
+          payload: t
+        });
+      }
+    })
+  }
 
   function createConsole(params: {
     doubleClickTreeNodeData: any,
@@ -449,8 +490,9 @@ const WorkspaceRight = memo<IProps>(function (props) {
   );
 });
 
-const dvaModel = connect(({ workspace, ai }: { workspace: IWorkspaceModelType; ai: IAIState }) => ({
+const dvaModel = connect(({ workspace, ai, connection }: { workspace: IWorkspaceModelType; ai: IAIState; connection: IConnectionModelState }) => ({
   workspaceModel: workspace,
+  connectionModel: connection,
   aiModel: ai,
 }));
 

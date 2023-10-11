@@ -1,5 +1,6 @@
 import React, { memo, useRef, useEffect, useMemo, useState } from 'react';
 import { connect } from 'umi';
+import lodash from 'lodash';
 import styles from './index.less';
 import DraggableContainer from '@/components/DraggableContainer';
 import WorkspaceLeft from './components/WorkspaceLeft';
@@ -9,7 +10,8 @@ import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import { ConsoleOpenedStatus } from '@/constants';
-import Iconfont from '@/components/Iconfont';
+import historyServer from '@/service/history';
+import { IConsole } from '@/typings';
 
 interface IProps {
   className?: string;
@@ -37,7 +39,7 @@ const workspace = memo<IProps>((props) => {
   const draggableRef = useRef<any>();
   const { workspaceModel, connectionModel, dispatch, pageLoading } = props;
   const { curConnection } = connectionModel;
-  const { curWorkspaceParams } = workspaceModel;
+  const { curWorkspaceParams, openConsoleList, curConsoleId } = workspaceModel;
   const [loading, setLoading] = useState(true);
   const isReady = curWorkspaceParams?.dataSourceId && ((curWorkspaceParams?.databaseName || curWorkspaceParams?.schemaName) || (curWorkspaceParams?.databaseName === null && curWorkspaceParams?.schemaName == null))
 
@@ -50,14 +52,50 @@ const workspace = memo<IProps>((props) => {
   }, [pageLoading])
 
   useEffect(() => {
-    clearData();
+    // 更新选中的Console信息
+    console.log(curConnection?.alias);
+    refreshOpenConsoleList();
   }, [curConnection]);
 
   useEffect(() => {
-    if (isReady) {
+    if (isReady && !openConsoleList?.length) {
+      console.log(curConnection?.alias)
       getConsoleList();
     }
+
+    refreshOpenConsoleList();
   }, [curWorkspaceParams]);
+
+  function refreshOpenConsoleList() {
+    // 更新当前的Console为调整调整后
+    const activeConsoleId = curConsoleId || Number(localStorage.getItem('active-console-id') || 0);
+    if (activeConsoleId) {
+      const activeConsole = openConsoleList?.find((t) => t.id === activeConsoleId);
+      if (activeConsole) {
+        const payload: any = {
+          dataSourceId: activeConsole.dataSourceId,
+          dataSourceName: activeConsole.dataSourceName,
+          databaseType: activeConsole.type,
+          databaseName: activeConsole.databaseName,
+          schemaName: activeConsole.schemaName,
+        }
+
+        if (lodash.isEqual(curWorkspaceParams, payload)) {
+          return
+        }
+      
+        let p: any = {
+          id: activeConsoleId,
+          type: curWorkspaceParams.databaseType,
+          ... curWorkspaceParams,
+        };
+
+        historyServer.updateSavedConsole(p).then(()=>{
+ 
+        })
+      }
+    }
+  }
 
   function clearData() {
     dispatch(({
