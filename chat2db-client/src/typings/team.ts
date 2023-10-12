@@ -65,26 +65,39 @@ export interface IDataSourceVO {
    * 连接地址
    */
   url?: string;
+  /**
+   * 连接类型
+   */
+  type?: string;
 }
 
+// Connected environment
 export interface IEnvironmentVO {
-  /**
-   * 主键
-   */
-  id?: number;
-  /**
-   * 环境名称
-   */
-  name?: string;
-  /**
-   * 环境缩写
-   */
-  shortName?: string;
-  /**
-   * 样式类型
-   */
-  style?: string;
+  id: number;
+  name: string;
+  shortName: string;
+  color: string;
 }
+
+
+// export interface IEnvironmentVO {
+//   /**
+//    * 主键
+//    */
+//   id?: number;
+//   /**
+//    * 环境名称
+//    */
+//   name?: string;
+//   /**
+//    * 环境缩写
+//    */
+//   shortName?: string;
+//   /**
+//    * 样式类型
+//    */
+//   style?: string;
+// }
 
 
 export interface IDataSourceAccessVO {

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Input, Table, Popconfirm, message, Drawer } from 'antd';
+import { Button, Input, Table, Popconfirm, message, Drawer, Tag } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
 import ConnectionServer from '@/service/connection'
 import { createDataSource, deleteDataSource, getDataSourceList, updateDataSource } from '@/service/team';
@@ -42,6 +42,14 @@ function DataSourceManagement() {
         title: i18n('team.datasource.url'),
         dataIndex: 'url',
         key: 'url',
+      },
+      {
+        title: i18n('team.datasource.env'),
+        key: 'id',
+        width: 120,
+        render: (_: any, record: IDataSourceVO) => (
+          <Tag color={record?.environment?.color?.toLocaleLowerCase()}>{record?.environment?.shortName}</Tag>
+        ),
       },
       {
         title: i18n('common.text.action'),
