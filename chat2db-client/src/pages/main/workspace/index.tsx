@@ -40,9 +40,9 @@ const workspace = memo<IProps>((props) => {
   const { workspaceModel, connectionModel, dispatch, pageLoading } = props;
   const { curConnection } = connectionModel;
   const { curWorkspaceParams, openConsoleList, curConsoleId } = workspaceModel;
+  const openConsoleListRef = useRef(openConsoleList);
   const [loading, setLoading] = useState(true);
   const isReady = curWorkspaceParams?.dataSourceId && ((curWorkspaceParams?.databaseName || curWorkspaceParams?.schemaName) || (curWorkspaceParams?.databaseName === null && curWorkspaceParams?.schemaName == null))
-  const openConsoleListRef = useRef(openConsoleList);
 
   useEffect(() => {
     if (pageLoading === true) {
@@ -50,7 +50,11 @@ const workspace = memo<IProps>((props) => {
     } else {
       setLoading(false);
     }
-  }, [pageLoading])
+  }, [pageLoading]);
+
+  useEffect(() => {
+    openConsoleListRef.current = openConsoleList;
+  }, [openConsoleList]);
 
   useEffect(() => {
     // 更新选中的Console信息
@@ -91,13 +95,14 @@ const workspace = memo<IProps>((props) => {
           ... curWorkspaceParams,
         };
 
+        
         historyServer.updateSavedConsole(p).then(()=>{
           // 更新新的数据
           const newList = openConsoleListRef.current?.map(t => {
             if (t.id === consoleId) {
               return p;
             }
-            
+
             return t
           })
           dispatch({
