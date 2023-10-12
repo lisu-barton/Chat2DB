@@ -42,6 +42,7 @@ const workspace = memo<IProps>((props) => {
   const { curWorkspaceParams, openConsoleList, curConsoleId } = workspaceModel;
   const [loading, setLoading] = useState(true);
   const isReady = curWorkspaceParams?.dataSourceId && ((curWorkspaceParams?.databaseName || curWorkspaceParams?.schemaName) || (curWorkspaceParams?.databaseName === null && curWorkspaceParams?.schemaName == null))
+  const openConsoleListRef = useRef(openConsoleList);
 
   useEffect(() => {
     if (pageLoading === true) {
@@ -68,9 +69,9 @@ const workspace = memo<IProps>((props) => {
 
   function refreshOpenConsoleList() {
     // 更新当前的Console为调整调整后
-    const activeConsoleId = curConsoleId || Number(localStorage.getItem('active-console-id') || 0);
-    if (activeConsoleId) {
-      const activeConsole = openConsoleList?.find((t) => t.id === activeConsoleId);
+    const consoleId = curConsoleId || Number(localStorage.getItem('active-console-id') || 0);
+    if (consoleId) {
+      const activeConsole = openConsoleList?.find((t) => t.id === consoleId);
       if (activeConsole) {
         const payload: any = {
           dataSourceId: activeConsole.dataSourceId,
@@ -91,7 +92,19 @@ const workspace = memo<IProps>((props) => {
         };
 
         historyServer.updateSavedConsole(p).then(()=>{
- 
+          // 更新新的数据
+          const newList = openConsoleListRef.current?.map(t => {
+            if (t.id === consoleId) {
+              return p;
+            }
+            
+            return t
+          })
+          dispatch({
+            type: 'workspace/setOpenConsoleList',
+            payload: newList,
+          });
+          
         })
       }
     }

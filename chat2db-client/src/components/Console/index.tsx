@@ -451,7 +451,7 @@ function Console(props: IProps) {
           isActive={isActive}
           ref={editorRef as any}
           className={hasAiChat ? styles.consoleEditorWithChat : styles.consoleEditor}
-          addAction={addAction}
+          addAction={hasAiChat ? addAction : []}
           onSave={saveConsole}
           onExecute={executeSQL}
           options={props.editorOptions}
