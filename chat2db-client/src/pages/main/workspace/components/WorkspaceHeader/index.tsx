@@ -41,6 +41,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
     if (curPage !== 'workspace') {
       return
     }
+
     // 如果没有curConnection默认选第一个
     if (!curConnection?.id && connectionList.length) {
       connectionChange([connectionList[0].id], [connectionList[0]]);

@@ -121,12 +121,14 @@ public class OperationServiceImpl implements OperationService {
         if (StringUtils.isNotBlank(param.getSearchKey())) {
             queryWrapper.like("name", param.getSearchKey());
         }
-        if (Objects.nonNull(param.getDataSourceId())) {
-            queryWrapper.eq("data_source_id", param.getDataSourceId());
-        }
-        if (StringUtils.isNotBlank(param.getDatabaseName())) {
-            queryWrapper.eq("database_name", param.getDatabaseName());
-        }
+
+//        if (Objects.nonNull(param.getDataSourceId())) {
+//            queryWrapper.eq("data_source_id", param.getDataSourceId());
+//        }
+//        if (StringUtils.isNotBlank(param.getDatabaseName())) {
+//            queryWrapper.eq("database_name", param.getDatabaseName());
+//        }
+
         if (StringUtils.isNotBlank(param.getStatus())) {
             queryWrapper.eq("status", param.getStatus());
         }
