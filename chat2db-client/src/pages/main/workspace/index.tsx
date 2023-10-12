@@ -85,7 +85,7 @@ const workspace = memo<IProps>((props) => {
         }
       
         let p: any = {
-          id: activeConsoleId,
+          ... activeConsole,
           type: curWorkspaceParams.databaseType,
           ... curWorkspaceParams,
         };
