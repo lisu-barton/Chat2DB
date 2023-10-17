@@ -198,6 +198,14 @@ export default function TableBox(props: ITableProps) {
         // onChangeSorts,
       }),
     )
+    // .use(
+    //   features.singleSelect({
+    //     defaultValue: '1',
+    //     highlightRowWhenSelected: true,
+    //     radioPlacement: 'start',
+    //     clickArea: 'row',
+    //   }),
+    // )
     .use(
       features.columnResize({
         fallbackSize: 120,
