@@ -27,6 +27,7 @@ export default {
   'team.datasource.code': '编码',
   'team.datasource.name': '名称',
   'team.datasource.status': '状态',
+  'team.datasource.env': '环境',
 
   'team.user.name': '用户',
   'team.user.userName': '用户名',

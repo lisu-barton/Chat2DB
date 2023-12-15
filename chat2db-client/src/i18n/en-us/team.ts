@@ -28,6 +28,7 @@ export default {
     'team.datasource.code': 'Code',
     'team.datasource.name': 'Name',
     'team.datasource.status': 'Status',
+    'team.datasource.env': 'Env',
 
     'team.user.name': 'User',
     'team.user.userName': 'UserName',
