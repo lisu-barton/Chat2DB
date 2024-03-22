@@ -34,7 +34,7 @@ export default {
     'team.user.userName': 'UserName',
     'team.user.nickName': 'NickName',
     'team.user.status': 'Status',
-    'team.user.accountType': 'AccountType',
+    'team.user.accountType': 'Type',
     'team.user.addForm.userName': 'UserName',
     'team.user.addForm.nickName': 'NickName',
     'team.user.addForm.email': 'Email',

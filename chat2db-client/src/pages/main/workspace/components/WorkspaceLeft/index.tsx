@@ -4,15 +4,12 @@ import i18n from '@/i18n';
 import { connect } from 'umi';
 import { Cascader, Divider, Input, Dropdown, Button, Spin } from 'antd';
 import Iconfont from '@/components/Iconfont';
-import LoadingContent from '@/components/Loading/LoadingContent';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
-import historyServer from '@/service/history';
-import Tree from '../Tree';
 import { TreeNodeType, ConsoleStatus, ConsoleOpenedStatus, OperationType } from '@/constants';
 import { IConsole, ITreeNode, ICreateConsole } from '@/typings';
 import styles from './index.less';
-import { approximateTreeNode, approximateList } from '@/utils';
+import DraggableContainer from '@/components/DraggableContainer';
 import historyService from '@/service/history';
 import TableList from '../TableList';
 import SaveList from '../SaveList';
@@ -35,6 +32,7 @@ const dvaModel = connect(
 );
 
 const WorkspaceLeft = memo<IProps>(function (props) {
+  const draggableRef = useRef<any>();
   const { className, workspaceModel, dispatch } = props;
   const { curWorkspaceParams, openConsoleList } = workspaceModel;
 
@@ -96,7 +94,22 @@ const WorkspaceLeft = memo<IProps>(function (props) {
 
   return (
     <div className={classnames(styles.box, className)}>
-      <SaveList />
+        <DraggableContainer layout="column" className={styles.workspaceWidth}>
+          <div ref={draggableRef} className={styles.boxTop}>
+            <SaveList />
+          </div>
+          <div className={styles.boxBottom}>
+            <TableList />
+            <div className={styles.createButtonBox}>
+              <Button className={styles.createButton} type="primary" onClick={createConsole}>
+                <Iconfont code="&#xe63a;" />
+                {i18n('common.button.createConsole')}
+              </Button>
+            </div>
+          </div>
+        </DraggableContainer>
+
+      {/* <SaveList />
       <Divider className={styles.divider} />
       <TableList />
       <div className={styles.createButtonBox}>
@@ -104,7 +117,7 @@ const WorkspaceLeft = memo<IProps>(function (props) {
           <Iconfont code="&#xe63a;" />
           {i18n('common.button.createConsole')}
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 });

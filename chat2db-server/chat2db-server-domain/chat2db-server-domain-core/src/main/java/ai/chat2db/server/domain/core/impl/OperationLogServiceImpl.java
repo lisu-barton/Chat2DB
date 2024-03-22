@@ -15,6 +15,7 @@ import ai.chat2db.server.domain.api.service.OperationLogService;
 import ai.chat2db.server.domain.core.converter.OperationLogConverter;
 import ai.chat2db.server.domain.repository.entity.OperationLogDO;
 import ai.chat2db.server.domain.repository.mapper.OperationLogMapper;
+import ai.chat2db.server.tools.base.enums.OrderByDirectionEnum;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
@@ -58,8 +59,8 @@ public class OperationLogServiceImpl implements OperationLogService {
     public PageResult<OperationLog> queryPage(OperationLogPageQueryParam param) {
         EasyLambdaQueryWrapper<OperationLogDO> queryWrapper = new EasyLambdaQueryWrapper<>();
         queryWrapper.likeWhenPresent(OperationLogDO::getDdl, EasySqlUtils.buildLikeRightFuzzy(param.getSearchKey()))
-            .eqWhenPresent(OperationLogDO::getUserId, param.getUserId())
-        ;
+            .eqWhenPresent(OperationLogDO::getUserId, param.getUserId());
+        queryWrapper.orderByDesc(OperationLogDO::getGmtCreate);
         Integer start = param.getPageNo();
         Integer offset = param.getPageSize();
         Page<OperationLogDO> page = new Page<>(start, offset);

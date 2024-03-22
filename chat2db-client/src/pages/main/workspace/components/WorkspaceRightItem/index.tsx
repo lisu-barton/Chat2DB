@@ -48,7 +48,7 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
   const [resultData, setResultData] = useState<IManageResultData[]>([]);
   const [resultConfig, setResultConfig] = useState<IResultConfig[]>([]);
 
-  const { doubleClickTreeNodeData, curTableList, curWorkspaceParams } = workspaceModel;
+  const { doubleClickTreeNodeData, curTableList, curWorkspaceParams, curHistoryDdl } = workspaceModel;
   const [tableLoading, setTableLoading] = useState(false);
 
   useEffect(() => {
@@ -68,6 +68,18 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
       payload: '',
     });
   }, [doubleClickTreeNodeData]);
+
+  useEffect(() => {
+    if (!curHistoryDdl) {
+      return;
+    }
+    setAppendValue({ text: curHistoryDdl });
+    
+    dispatch({
+      type: 'workspace/setCurHistoryDdl',
+      payload: '',
+    });
+  }, [curHistoryDdl]);
 
   useUpdateEffect(() => {
     setAppendValue({ text: data.initDDL });

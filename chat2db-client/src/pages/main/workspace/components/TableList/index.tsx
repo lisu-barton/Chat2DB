@@ -62,8 +62,6 @@ const TableList = dvaModel(function (props: any) {
     }
   }, [curWorkspaceParams]);
 
-
-
   useEffect(() => {
     if (searching) {
       inputRef.current!.focus({

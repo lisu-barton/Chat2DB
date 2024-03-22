@@ -2,6 +2,12 @@
 
 .saveModule {
   flex-shrink: 0;
+  display: contents;
+  flex-direction: column;
+  overflow-y: overlay;
+  // padding: 0px 10px 0px 0px;
+  // flex: 1;
+  // height: 100%;
 }
 
 .leftModuleTitle {
@@ -36,21 +42,27 @@
 }
 
 .saveBoxList {
-  margin: 0px -10px;
-  height: calc(26px * 3 + 6px);
+  // margin: 0px -10px;
+  // height: calc(100vh - 26px * 3 + 6px);
+  // overflow-y: auto;
+  height: 100%;
+  position: relative;
+  display: flow;
   overflow-y: auto;
 }
+
 
 .saveItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0px 10px;
+  // padding: 0px 10px;
   margin-bottom: 2px;
   line-height: 26px;
   border-radius: 2px;
   user-select: none;
   cursor: pointer;
+
   .saveItemText{
     width: 0px;
     flex: 1;

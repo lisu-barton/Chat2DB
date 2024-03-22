@@ -12,6 +12,7 @@ import { ConsoleStatus, ConsoleOpenedStatus } from '@/constants';
 import { IConsole, ITreeNode } from '@/typings';
 import styles from './index.less';
 import { approximateList } from '@/utils';
+import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 
 interface IProps {
   className?: string;
@@ -20,6 +21,17 @@ interface IProps {
   tableLoading: boolean;
   databaseLoading: boolean;
 }
+
+interface IOption {
+  value: number;
+  label: string;
+  getUrl: string;
+  setUrl: string;
+}
+const optionsList: IOption[] = [
+  { value: 1, label: i18n('workspace.title.history'), getUrl: 'workspace/fetchGetHistoryConsole', setUrl: 'workspace/setHistoryList' },
+  { value: 2, label: i18n('workspace.title.saved'), getUrl: 'workspace/fetchGetSavedConsole', setUrl: 'workspace/setConsoleList' },
+]
 
 const dvaModel = connect(
   ({ connection, workspace, loading }: { connection: IConnectionModelType; workspace: IWorkspaceModelType, loading: any }) => ({
@@ -31,34 +43,42 @@ const dvaModel = connect(
 );
 
 const SaveList = dvaModel(function (props: any) {
+  const [optionType, setOptionType] = useState<IOption>(optionsList[0]);
   const { workspaceModel, dispatch } = props;
-  const { curWorkspaceParams, consoleList } = workspaceModel;
+  const { curWorkspaceParams, consoleList, historyList } = workspaceModel;
   const [searching, setSearching] = useState<boolean>(false);
   const inputRef = useRef<any>();
   const [searchedList, setSearchedList] = useState<ITreeNode[] | undefined>();
 
+  useUpdateEffect(() => {
+    getList();
+  }, [optionType]);
+
   useEffect(() => {
+    getList();
+  }, [curWorkspaceParams]);
+
+  function getList() {
     if (!curWorkspaceParams.dataSourceId || !(curWorkspaceParams?.databaseName || curWorkspaceParams?.schemaName)) {
       return
     }
     dispatch({
-      type: 'workspace/fetchGetSavedConsole',
+      type: optionType.getUrl,
       payload: {
         pageNo: 1,
         pageSize: 999,
-        orderByDesc: true,
+        orderByDesc: false,
         status: ConsoleStatus.RELEASE,
         ...curWorkspaceParams,
       },
       callback: (res: any) => {
         dispatch({
-          type: 'workspace/setConsoleList',
+          type: optionType.setUrl,
           payload: res.data,
         })
       }
     });
-  }, [curWorkspaceParams]);
-
+  }
 
   useEffect(() => {
     if (searching) {
@@ -86,6 +106,16 @@ const SaveList = dvaModel(function (props: any) {
 
   function openConsole(data: IConsole) {
 
+    if (optionType.value == 1) {
+      dispatch({
+        type: 'workspace/setCurHistoryDdl',
+        payload: data.name,
+      })
+
+      return
+    }
+
+
     let p: any = {
       id: data.id,
       tabOpened: ConsoleOpenedStatus.IS_OPEN
@@ -98,7 +128,7 @@ const SaveList = dvaModel(function (props: any) {
       });
 
       dispatch({
-        type: 'workspace/fetchGetSavedConsole',
+        type: optionType.getUrl,
         payload: {
           orderByDesc: false,
           tabOpened: ConsoleOpenedStatus.IS_OPEN,
@@ -106,7 +136,7 @@ const SaveList = dvaModel(function (props: any) {
         },
         callback: (res: any) => {
           dispatch({
-            type: 'workspace/setOpenConsoleList',
+            type: optionType.setUrl,
             payload: res.data,
           })
         }
@@ -120,7 +150,7 @@ const SaveList = dvaModel(function (props: any) {
     };
     historyServer.deleteSavedConsole(p).then((res) => {
       dispatch({
-        type: 'workspace/fetchGetSavedConsole',
+        type: optionType.getUrl,
         payload: {
           orderByDesc: true,
           tabOpened: ConsoleOpenedStatus.IS_OPEN,
@@ -134,7 +164,7 @@ const SaveList = dvaModel(function (props: any) {
         }
       })
       dispatch({
-        type: 'workspace/fetchGetSavedConsole',
+        type: optionType.getUrl,
         payload: {
           orderByDesc: true,
           status: ConsoleStatus.RELEASE,
@@ -142,12 +172,16 @@ const SaveList = dvaModel(function (props: any) {
         },
         callback: (res: any) => {
           dispatch({
-            type: 'workspace/setConsoleList',
+            type: optionType.setUrl,
             payload: res.data,
           })
         }
       })
     });
+  }
+
+  function cascaderChange(value: string[], selectedOptions: IOption[]) {
+    setOptionType(selectedOptions[0]);
   }
 
   return (
@@ -168,21 +202,37 @@ const SaveList = dvaModel(function (props: any) {
             </div>
             :
             <div className={styles.leftModuleTitleText}>
-              <div className={styles.modelName}>{i18n('workspace.title.saved')}</div>
+              <Cascader
+                defaultValue={[optionType.value]}
+                popupClassName={styles.cascaderPopup}
+                options={optionsList}
+                onChange={cascaderChange as any}
+              >
+                <div className={styles.modelName}>
+                  {optionType.label}
+                  <Iconfont code='&#xe88e;' />
+                </div>
+              </Cascader>
+              {/* <div className={styles.modelName}>{i18n('workspace.title.saved')}</div> */}
               <div className={styles.iconBox} >
-                {/* <div className={styles.refreshIcon} onClick={() => refreshTableList()}>
-                  <Iconfont code="&#xec08;" />
-                </div> */}
-                <div className={styles.searchIcon} onClick={() => openSearch()}>
-                  <Iconfont code="&#xe600;" />
+                <div className={styles.refreshIcon} onClick={() => getList()}>
+                    <Iconfont code="&#xec08;" />
+                  </div>
+                <div className={styles.iconBox} >
+                  {/* <div className={styles.refreshIcon} onClick={() => refreshTableList()}>
+                    <Iconfont code="&#xec08;" />
+                  </div> */}
+                  <div className={styles.searchIcon} onClick={() => openSearch()}>
+                    <Iconfont code="&#xe600;" />
+                  </div>
                 </div>
               </div>
             </div>
         }
       </div>
       <div className={styles.saveBoxList}>
-        <LoadingContent data={consoleList} handleEmpty>
-          {(searchedList || consoleList)?.map((t: IConsole) => {
+        <LoadingContent data={optionType.value==1 ? historyList : consoleList} handleEmpty>
+          {(searchedList || (optionType.value==1 ? historyList : consoleList))?.map((t: IConsole) => {
             return (
               <div
                 onDoubleClick={() => {
@@ -194,31 +244,33 @@ const SaveList = dvaModel(function (props: any) {
                 <div className={styles.saveItemText}>
                   <span dangerouslySetInnerHTML={{ __html: t.name }} />
                 </div>
-                <Dropdown
-                  menu={{
-                    items: [
-                      {
-                        key: 'open',
-                        label: i18n('common.button.open'),
-                        onClick: () => {
-                          openConsole(t)
-                        }
-                      },
-                      {
-                        key: 'delete',
-                        label: i18n('common.button.delete'),
-                        onClick: () => {
-                          deleteSaved(t)
-                        },
-                      },
-                    ],
-                  }}
-                >
-                  <div className={styles.moreButton}>
-                    <Iconfont code="&#xe601;"></Iconfont>
-                  </div>
-                </Dropdown>
-
+                  {
+                    optionType.value==1 ? '' :
+                    <Dropdown
+                      menu={{
+                        items: [
+                          {
+                            key: 'open',
+                            label: i18n('common.button.open'),
+                            onClick: () => {
+                              openConsole(t)
+                            }
+                          },
+                          {
+                            key: 'delete',
+                            label: i18n('common.button.delete'),
+                            onClick: () => {
+                              deleteSaved(t)
+                            },
+                          },
+                        ],
+                      }}
+                    >
+                      <div className={styles.moreButton}>
+                        <Iconfont code="&#xe601;"></Iconfont>
+                      </div>
+                    </Dropdown>
+                    }
               </div>
             );
           })}

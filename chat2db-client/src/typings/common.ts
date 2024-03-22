@@ -14,6 +14,15 @@ export interface IPageParams {
   pageSize: number;
 }
 
+// 
+export interface IHistoryRecord {
+  id: number; // 
+  ddl: string; // 控制台内的sql
+  dataSourceId: number; // 数据源id
+  databaseName?: string; // 数据库名称
+  type: DatabaseTypeCode; // 数据库类型
+}
+
 // 控制台详情
 export interface IConsole {
   id: number; // consoleId

@@ -2,6 +2,7 @@ export default {
   'workspace.cascader.placeholder': 'Select Here',
   'workspace.ai.input.placeholder': 'Enter your plain text statement here',
   'workspace.title.saved': 'Saved',
+  'workspace.title.history': 'History',
   'workspace.menu.exportDDL': 'Export DDL',
   'workspace.menu.deleteTable': 'Delete Table',
   'workspace.menu.pin': 'Pin',

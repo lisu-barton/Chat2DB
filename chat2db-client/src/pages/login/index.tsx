@@ -47,7 +47,7 @@ const App: React.FC = () => {
         <Form className={styles.loginForm}
               size="large" 
               initialValues={{
-                accountType: AccountType.NORMAL,
+                accountType: AccountType.LDAP,
               }}
               onFinish={handleLogin}>
           <Form.Item

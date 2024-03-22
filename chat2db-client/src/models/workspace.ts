@@ -3,7 +3,7 @@ import sqlService, { MetaSchemaVO } from '@/service/sql';
 import historyService from '@/service/history';
 import { DatabaseTypeCode, ConsoleStatus, TreeNodeType } from '@/constants';
 import { Effect, Reducer } from 'umi';
-import { ITreeNode, IConsole, IPageResponse } from '@/typings';
+import { ITreeNode, IConsole, IPageResponse, IHistoryRecord } from '@/typings';
 import { treeConfig } from '@/pages/main/workspace/components/Tree/treeConfig';
 
 export type ICurWorkspaceParams = {
@@ -21,8 +21,10 @@ export interface IWorkspaceModelState {
   curWorkspaceParams: ICurWorkspaceParams;
   // 双击树node节点
   doubleClickTreeNodeData: ITreeNode | undefined;
-  consoleList: IConsole[];
   curConsoleId: number | null;
+  consoleList: IConsole[];
+  curHistoryDdl: string | null;
+  historyList: IHistoryRecord[];
   openConsoleList: IConsole[];
   curTableList: ITreeNode[];
   curViewList: ITreeNode[];
@@ -36,9 +38,11 @@ export interface IWorkspaceModelType {
     setDatabaseAndSchema: Reducer<IWorkspaceModelState>;
     setCurWorkspaceParams: Reducer<IWorkspaceModelState>;
     setDoubleClickTreeNodeData: Reducer<IWorkspaceModelState>;
+    setHistoryList: Reducer<IWorkspaceModelState>;
     setConsoleList: Reducer<IWorkspaceModelState>;
-    setOpenConsoleList: Reducer<IWorkspaceModelState>;
     setCurConsoleId: Reducer<IWorkspaceModelState>;
+    setOpenConsoleList: Reducer<IWorkspaceModelState>;
+    setCurHistoryDdl: Reducer<IWorkspaceModelState>;
     setCurTableList: Reducer<IWorkspaceModelState>;
     setCurViewList: Reducer<IWorkspaceModelState>;
   };
@@ -46,6 +50,7 @@ export interface IWorkspaceModelType {
     fetchDatabaseAndSchema: Effect;
     fetchDatabaseAndSchemaLoading: Effect;
     fetchGetSavedConsole: Effect;
+    fetchGetHistoryConsole: Effect;
     fetchGetCurTableList: Effect;
     fetchGetSavedConsoleLoading: Effect;
   };
@@ -58,10 +63,12 @@ const WorkspaceModel: IWorkspaceModelType = {
     databaseAndSchema: undefined,
     curWorkspaceParams: getCurrentWorkspaceDatabase(),
     doubleClickTreeNodeData: undefined,
+    historyList: [],
     consoleList: [],
     openConsoleList: [],
     curTableList: [],
     curViewList: [],
+    curHistoryDdl: null,
     curConsoleId: null
   },
 
@@ -88,7 +95,12 @@ const WorkspaceModel: IWorkspaceModelType = {
         doubleClickTreeNodeData: payload,
       };
     },
-
+    setHistoryList(state, { payload }) {
+      return {
+        ...state,
+        historyList: payload,
+      };
+    },
     setConsoleList(state, { payload }) {
       return {
         ...state,
@@ -101,6 +113,13 @@ const WorkspaceModel: IWorkspaceModelType = {
         ...state,
         openConsoleList: payload,
       };
+    },
+
+    setCurHistoryDdl(state, { payload }) {
+      return {
+        ...state,
+        curHistoryDdl: payload
+      }
     },
 
     // 当前聚焦的console
@@ -155,6 +174,21 @@ const WorkspaceModel: IWorkspaceModelType = {
       }
       catch {
 
+      }
+    },
+    // 获取历史的控制台列表
+    *fetchGetHistoryConsole({ payload, callback }, { put }) {
+      try {
+        const res = (yield historyService.getHistoryList({
+          pageNo: 1,
+          pageSize: 999,
+          ...payload
+        })) as IPageResponse<IConsole>;
+        if (callback && typeof callback === 'function') {
+          callback(res);
+        }
+      }
+      catch {
       }
     },
     // 获取保存的控制台列表
